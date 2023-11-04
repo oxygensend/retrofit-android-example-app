@@ -1,5 +1,6 @@
 package com.oxygensend.shoppinglist.components
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
@@ -15,20 +16,33 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
+import androidx.navigation.compose.rememberNavController
 import com.oxygensend.shoppinglist.view_model.ShoppingListsViewModel
 import com.oxygensend.shoppinglist.api.dto.ShoppingListDto
 
 @Composable
-fun ShoppingListItem(shoppingList: ShoppingListDto, viewModel: ShoppingListsViewModel) {
+fun ShoppingListItem(shoppingList: ShoppingListDto, viewModel: ShoppingListsViewModel, navController: NavController) {
 
     val textDecoration = if (shoppingList.completed) TextDecoration.LineThrough else null
 
+//    LaunchedEffect(Unit) {
+//        snapshotFlow(shoppingList) {
+//            onEach {
+//                navController.currentBackStackEntry?.arguments = bundleOf("shoppingListId" to it.id)
+//                navController.navigate("details")
+//            }
+//        }.collect()
+//    }
+
     ListItem(
+        modifier = Modifier.padding(8.dp)
+            .clickable { navController.navigate("shoppingListDetails/${shoppingList.id}") },
         headlineText = {
             Text(
                 text = shoppingList.name,
                 textDecoration = textDecoration,
-                modifier = Modifier.padding(8.dp)
+                modifier = Modifier.padding(8.dp),
             )
         },
         leadingContent = {
@@ -54,6 +68,7 @@ fun ShoppingListItem(shoppingList: ShoppingListDto, viewModel: ShoppingListsView
             }
         },
     )
+
 }
 
 
@@ -61,7 +76,7 @@ fun ShoppingListItem(shoppingList: ShoppingListDto, viewModel: ShoppingListsView
 @Composable
 fun ShoppingListItemPreview() {
     var shoppingListDto = ShoppingListDto("1", "Shopping List 1", true)
-    ShoppingListItem(shoppingListDto, ShoppingListsViewModel())
+    ShoppingListItem(shoppingListDto, ShoppingListsViewModel(), navController = rememberNavController())
 }
 
 

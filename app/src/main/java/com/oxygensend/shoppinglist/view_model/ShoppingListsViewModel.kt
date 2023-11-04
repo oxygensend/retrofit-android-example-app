@@ -1,13 +1,9 @@
 package com.oxygensend.shoppinglist.view_model
 
-import android.app.AlertDialog
 import android.util.Log
 import androidx.lifecycle.ViewModel
-import com.oxygensend.shoppinglist.api.ApiClient
-import com.oxygensend.shoppinglist.api.dto.CreateShoppingListRequest
-import com.oxygensend.shoppinglist.api.dto.ShoppingListDto
-import com.oxygensend.shoppinglist.api.dto.ShoppingListResponse
-import com.oxygensend.shoppinglist.api.dto.UpdateShoppingListRequest
+import com.oxygensend.shoppinglist.api.ShoppingListClient
+import com.oxygensend.shoppinglist.api.dto.*
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import retrofit2.Call
@@ -25,6 +21,9 @@ class ShoppingListsViewModel : ViewModel() {
     private val _closeShoppingListCreate = MutableStateFlow<Boolean>(false)
     val closeShoppingListCreate: StateFlow<Boolean> get() = _closeShoppingListCreate
 
+    private val _selectedShoppingList = MutableStateFlow<ShoppingListGet?>(null)
+    val selectedShoppingList: StateFlow<ShoppingListGet?> get() = _selectedShoppingList
+
     fun closeShoppingListCreate() {
         _closeShoppingListCreate.value = true
     }
@@ -39,7 +38,7 @@ class ShoppingListsViewModel : ViewModel() {
     }
 
     fun removeShoppingList(shoppingList: ShoppingListDto) {
-        ApiClient.deleteShoppingList(shoppingList.id).enqueue(object : Callback<Void> {
+        ShoppingListClient.deleteShoppingList(shoppingList.id).enqueue(object : Callback<Void> {
             override fun onResponse(call: Call<Void>, response: Response<Void>) {
                 if (response.isSuccessful) {
                     val currentShoppingLists = _shoppingLists.value.toMutableList()
@@ -58,7 +57,7 @@ class ShoppingListsViewModel : ViewModel() {
     }
 
     fun fetchShoppingLists() {
-        ApiClient.shoppingLists()
+        ShoppingListClient.shoppingLists()
             .enqueue(object : Callback<ShoppingListResponse> {
                 override fun onResponse(
                     call: Call<ShoppingListResponse>,
@@ -80,7 +79,7 @@ class ShoppingListsViewModel : ViewModel() {
         val request = UpdateShoppingListRequest(
             completed = completed
         )
-        ApiClient.updateShoppingList(shoppingList.id, request)
+        ShoppingListClient.updateShoppingList(shoppingList.id, request)
             .enqueue(object : Callback<ShoppingListDto> {
                 override fun onResponse(
                     call: Call<ShoppingListDto>,
@@ -102,7 +101,7 @@ class ShoppingListsViewModel : ViewModel() {
     }
 
     fun createShoppingList(request: CreateShoppingListRequest) {
-        ApiClient.createShoppingList(request)
+        ShoppingListClient.createShoppingList(request)
             .enqueue(object : Callback<ShoppingListDto> {
                 override fun onResponse(
                     call: Call<ShoppingListDto>,
@@ -129,5 +128,25 @@ class ShoppingListsViewModel : ViewModel() {
                     showMessage("GOWNO NIE DZIALA")
                 }
             })
+    }
+
+    fun getShoppingListById(shoppingListId: String) {
+        ShoppingListClient.getShoppingList(shoppingListId)
+            .enqueue(object : Callback<ShoppingListGet> {
+                override fun onResponse(
+                    call: Call<ShoppingListGet>,
+                    response: Response<ShoppingListGet>
+                ) {
+                    if (response.isSuccessful) {
+                        val shoppingList = response.body()!!
+                        _selectedShoppingList.value = shoppingList
+                    }
+                }
+
+                override fun onFailure(call: Call<ShoppingListGet>, t: Throwable) {
+                    Log.e("ShoppingList", t.toString())
+                }
+            });
+
     }
 }

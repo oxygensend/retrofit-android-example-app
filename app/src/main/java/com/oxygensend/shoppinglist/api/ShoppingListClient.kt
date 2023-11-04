@@ -3,12 +3,8 @@ package com.oxygensend.shoppinglist.api
 import com.oxygensend.shoppinglist.api.dto.*
 import retrofit2.Call
 
-class ApiClient {
+class ShoppingListClient {
     companion object {
-        fun login(request: LoginRequest): Call<AuthResponse> {
-            return RetrofitClient.apiService.login(request)
-        }
-
         fun shoppingLists(): Call<ShoppingListResponse> {
             return RetrofitClient.authenticatedService.getShoppingLists()
         }
@@ -23,6 +19,10 @@ class ApiClient {
 
         fun createShoppingList(shoppingList: CreateShoppingListRequest): Call<ShoppingListDto> {
             return RetrofitClient.authenticatedService.createShoppingList(shoppingList)
+        }
+
+        fun getShoppingList(shoppingListId: String): Call<ShoppingListGet> {
+            return RetrofitClient.authenticatedService.getShoppingList(shoppingListId)
         }
     }
 }

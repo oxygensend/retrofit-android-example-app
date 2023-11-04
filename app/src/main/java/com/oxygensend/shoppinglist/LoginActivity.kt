@@ -7,7 +7,7 @@ import android.widget.EditText
 import android.widget.TextView
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import com.oxygensend.shoppinglist.api.ApiClient
+import com.oxygensend.shoppinglist.api.AuthClient
 import com.oxygensend.shoppinglist.api.context.Context
 import com.oxygensend.shoppinglist.api.context.ContextKeys
 import com.oxygensend.shoppinglist.api.dto.AuthResponse
@@ -29,14 +29,13 @@ class LoginActivity : ComponentActivity() {
         val textPass = findViewById<EditText>(R.id.editTextTextPassword)
         val textTitle = findViewById<TextView>(R.id.textViewId)
 
-        ApiClient.login(LoginRequest(textId.text.toString(), textPass.text.toString()))
+        AuthClient.login(LoginRequest(textId.text.toString(), textPass.text.toString()))
             .enqueue(object : Callback<AuthResponse> {
                 override fun onResponse(
                     call: Call<AuthResponse>,
                     response: Response<AuthResponse>
                 ) {
                     if (response.isSuccessful) {
-                        textTitle.text = response.body()?.accessToken
                         Context.create(this@LoginActivity)
                         response.body()?.accessToken?.let { Context.saveString(ContextKeys.ACCESS_TOKEN, it) }
                         response.body()?.refreshToken?.let { Context.saveString(ContextKeys.REFRESH_TOKEN, it) }

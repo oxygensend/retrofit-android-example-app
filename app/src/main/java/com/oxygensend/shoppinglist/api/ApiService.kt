@@ -8,6 +8,9 @@ interface ApiService {
     @POST(API.LOGIN_URL)
     fun login(@Body loginRequest: LoginRequest): Call<AuthResponse>
 
+    @POST(API.REFRESH_TOKEN_URL)
+    fun refreshToken(@Body refreshTokenRequest: RefreshTokenRequest): Call<AuthResponse>
+
     @GET(API.SHOPPING_LISTS_URL)
     fun getShoppingLists(): Call<ShoppingListResponse>
 
@@ -26,4 +29,9 @@ interface ApiService {
     fun createShoppingList(
         @Part("request") shoppingList: CreateShoppingListRequest
     ): Call<ShoppingListDto>
+
+
+    @GET(API.SHOPPING_LIST_ID_URL)
+    fun getShoppingList(@Path("id") shoppingListId: String): Call<ShoppingListGet>
+
 }
