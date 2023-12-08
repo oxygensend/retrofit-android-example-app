@@ -10,6 +10,7 @@ import okhttp3.Interceptor
 import okhttp3.OkHttpClient
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
+import kotlin.random.Random
 
 class RetrofitClient {
     companion object {
@@ -17,8 +18,6 @@ class RetrofitClient {
         private val retrofit: Retrofit by lazy {
             Retrofit.Builder()
                 .baseUrl(API.BASE_URL)
-                .addCallAdapterFactory(LiveDataCallAdapterFactory.create())
-                .addConverterFactory(LiveDataResponseBodyConverterFactory.create())
                 .addConverterFactory(GsonConverterFactory.create())
                 .build()
 
@@ -41,8 +40,17 @@ class RetrofitClient {
                     .addHeader("Authorization", "Bearer ${Context.getString(ContextKeys.ACCESS_TOKEN)}")
                     .build()
                 val response = chain.proceed(request)
+                Log.d(
+                    "RetrofitClient",
+                    "Response from: ${response.request.method} ${response.request.url} " +
+                            "with code: ${response.code}")
 
-                if (response.code == 401) {
+
+                val randomValue: Double = Random.nextDouble()
+
+                if (response.code == 401 || randomValue < 0.4) {
+                    response.close()
+                    Log.d("RetrofitClient", "Refreshing token")
                     // Make a request to refresh the access token using the refresh token
                     val refreshToken = Context.getString(ContextKeys.REFRESH_TOKEN)
                     val authResponse = AuthClient.refreshToken(RefreshTokenRequest(refreshToken)).execute()
